@@ -1,26 +1,17 @@
-use YAML2CSV;
-use strict;
-use warnings;
+use yaml2csv;
 use base qw(Test::Class);
-use Test::More;
-#require YAML2CSV;
+use Test::More 'no_plan';
 
-
-sub testReadYAML : Tests {
-	my $file = "java-details.yml";
-	is(YAML2CSV::readYAML($file),1);
-	is(YAML2CSV::readYAML(),0);
+sub constructor : Tests {
+  my $yaml2csv = yaml2csv->new("java-detaisl.yml"); 
+  isnt($yaml2csv, undef); 
+  can_ok($yaml2csv, 'extract_lines');
+  can_ok($yaml2csv, 'extract_labels');
 }
 
-sub testExtractLabels : Tests
-{
-	my $file = "java-details.yml";
-	open(my $yaml_handler, "<", $file) || return 0;
- 	is(YAML2CSV::extract_labels($yaml_handler), 18);
-
+sub extract_linesTest : Tests {
+  my $yaml2csv = yaml2csv->new("java-detaisl.yml");
+  isnt($yaml2csv, undef); 
 }
-
-
-
 
 __PACKAGE__->runtests;
