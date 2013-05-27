@@ -1,7 +1,8 @@
 use strict;
 use warnings;
-#package Analizo::Batch::Output::YAML2CSV;
-package yaml2csv;
+package Analizo::Batch::Output::yaml2csv;
+
+use base qw( Analizo::Batch::Output);
 
 sub new 
 {
