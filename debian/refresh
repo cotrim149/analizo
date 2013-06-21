@@ -3,13 +3,17 @@
 use strict;
 
 sub cpan2debian {
-  my (@pkgs) = @_;
+  my (%pkgs) = @_;
   map {
+    my $version = $pkgs{$_};
     my $debian_pkg = 'lib' . lc($_) . '-perl';
     $debian_pkg =~ s/::/-/g;
     $debian_pkg =~ s/sqlite/sqlite3/;   # special case
+    if ($version) {
+      $debian_pkg .= " (>= $version)";
+    }
     $debian_pkg;
-  } @pkgs;
+  } sort(keys(%pkgs));
 }
 
 my @dependencies = ();
@@ -30,8 +34,8 @@ sub CheckExtraDependencies {
 
 sub WriteMakefile {
   my %config = @_;
-  push @dependencies, cpan2debian(sort(keys(%{$config{PREREQ_PM}})));
-  push @build_dependencies, cpan2debian(sort(keys(%{$config{BUILD_REQUIRES}})));
+  push @dependencies, cpan2debian(%{$config{PREREQ_PM}});
+  push @build_dependencies, cpan2debian(%{$config{BUILD_REQUIRES}});
   push @build_dependencies, @dependencies;
 }
 
@@ -42,16 +46,18 @@ eval $code;
 
 unshift @dependencies, '${misc:Depends}', '${perl:Depends}';
 
-my $dependencies = join(', ', @dependencies);
-my $build_dependencies = join(', ', @build_dependencies);
+my $dependencies = join(",\n ", @dependencies);
+my $build_dependencies = join(",\n ", @build_dependencies);
 
 open(OLDCONTROL, '<', 'debian/control');
 my @control = <OLDCONTROL>;
 close(OLDCONTROL);
+my $control = join('', @control);
 open(NEWCONTROL, '>', 'debian/control');
-for my $line (@control) {
-  $line =~ s/^Build-Depends-Indep:.*/Build-Depends-Indep: $build_dependencies/;
-  $line =~ s/^Depends:.*/Depends: $dependencies/;
-  print NEWCONTROL $line;
-}
+
+$control =~ s/Depends:(\n .*)+/Depends:\n $dependencies/;
+$control =~ s/Build-Depends-Indep:(\n .*)+/Build-Depends-Indep:\n $build_dependencies/;
+
+print NEWCONTROL $control;
+
 close(NEWCONTROL);
