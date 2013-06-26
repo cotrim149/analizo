@@ -40,8 +40,12 @@ sub write_data {
     close DETAILS;
 
     # yaml2cvs is a perl script from yamltk (Leo Charre > yamltk-1.08) 
-    my $details_csv = $job->directory . "-details.csv";
-    system("yaml2csv " . $details_yaml . " > " . $details_csv);
+    # my $details_csv = $job->directory . "-details.csv";
+    # system("yaml2csv " . $details_yaml . " > " . $details_csv);
+
+    my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
+    
+
   }
 }
 

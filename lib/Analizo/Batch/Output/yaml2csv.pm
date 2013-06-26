@@ -13,7 +13,7 @@ sub extract_labels
   my ($self) = @_;
   my @labels = ();
 
-  open(my $yaml_handler, "<", $self->{file_name}) || return 0;
+  open(my $yaml_handler, "<", $self->{file_name} . "-details.yml")  || return 0;
 
   while(!eof $yaml_handler)
   { 
@@ -37,7 +37,7 @@ sub extract_lines
 
   my ($self) = @_;
   my @lines = ();
-  open(my $yaml_handler, "<", $self->{file_name}) || return 0;
+  open(my $yaml_handler, "<", $self->{file_name} . "-details.yml")  || return 0;
 	
   while(!eof $yaml_handler)
   {
@@ -54,7 +54,9 @@ sub extract_lines
 sub write_csv 
 {
   my ($self) = @_;
-  open(my $csv_handler, ">", "saida.csv") || die "nao pode abrir saida.csv".$!;
+  my $csv_filename = $self->{file_name} . "-details.csv";
+  open my $csv_handler, '>'.$csv_filename  || return 0;
+  #open(my $csv_handler, ">", $self->{file_name} . "-details.csv") || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
 
   my $arrSize = $self->extract_labels();
   print $csv_handler join(",", $self->extract_labels());
