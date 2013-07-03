@@ -36,20 +36,33 @@ sub extract_labels
 sub extract_lines
 {
 
-  my ($self) = @_;
+  my ($self, $number_of_labels) = @_;
   my @lines = ();
+
   open(my $yaml_handler, "<", $self->{file_name} . "-details.yml")  || return 0;
-	
+  
+  my $loop_times = 0;
+
+  my $count = 0;
+  my @array_of_values = ();
+
   while(!eof $yaml_handler)
   {
     my $line = readline $yaml_handler;
     if($line ne "---\n" and $line =~ m/( (\d+)| (\w+)| - (\w+).(\w+))/)
     {
+      if($number_of_labels eq $loop_times)
+      {
+        push @array_of_values, @lines;
+        $loop_times = 0;
+        @lines = ();
+      }
       push @lines, $1;
+      $loop_times++;
     }
   } 
   close $yaml_handler;
-  return @lines;
+  return @array_of_values;
 }
 
 sub write_csv 
@@ -59,16 +72,19 @@ sub write_csv
   open my $csv_handler, '>'.$csv_filename  || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
   #open(my $csv_handler, ">", $self->{file_name} . "-details.csv") || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
 
-  my $arrSize = $self->extract_labels();
+
+  my $number_of_labels = $self->extract_labels();
   print $csv_handler join(",", $self->extract_labels());
   print $csv_handler "\n";
-  print $csv_handler join(",", $self->extract_lines($arrSize));
-  
+  my @array_of_values =  $self->extract_lines($number_of_labels);
+
+  foreach(@array_of_values)
+  {
+    print $csv_handler join(",", $_);  
+
+  }
   close $csv_handler;
   return 1;
 }
 
 1;
-
-
-string[5..25]
