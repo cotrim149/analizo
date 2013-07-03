@@ -3,6 +3,7 @@ package Analizo::Batch::Output::CSV;
 use base qw( Analizo::Batch::Output );
 use Analizo::Metrics;
 use YAML;
+use Analizo::Batch::Output::yaml2csv;
 
 sub push {
   my ($self, $job) = @_;
@@ -33,7 +34,7 @@ sub write_data {
     my $line = join(',', $job->id, @metadata, @values) . "\n";
     print $fh $line;
 
-    print "Writing details file for ... ",  $job->directory, "\n";
+    #print "Writing details file for ... ",  $job->directory, "\n";
     my $details_yaml = $job->directory . "-details.yml";
     open DETAILS, '>' . $details_yaml;
     print DETAILS join('', map { Dump($_)} @$details);
@@ -44,8 +45,11 @@ sub write_data {
     # system("yaml2csv " . $details_yaml . " > " . $details_csv);
 
     my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
-    
-
+    if ($yaml2csv == undef)
+    {
+	die($job->directory);
+    }
+    $yaml2csv->write_csv();
   }
 }
 
