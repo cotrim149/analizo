@@ -55,11 +55,12 @@ sub write_csv
 {
   my ($self) = @_;
   my $csv_filename = $self->{file_name} . "-details.csv";
-  open my $csv_handler, '>'.$csv_filename  || return 0;
+  open my $csv_handler, '>'.$csv_filename  || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
   #open(my $csv_handler, ">", $self->{file_name} . "-details.csv") || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
 
   my $arrSize = $self->extract_labels();
   print $csv_handler join(",", $self->extract_labels());
+  print $csv_handler "\n";
   print $csv_handler join(",", $self->extract_lines($arrSize));
   
   close $csv_handler;
