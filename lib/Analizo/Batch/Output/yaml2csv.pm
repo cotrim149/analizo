@@ -53,6 +53,7 @@ sub extract_lines
     {
       if($number_of_labels eq $loop_times)
       {
+        push @lines, "\n";
         push @array_of_values, @lines;
         $loop_times = 0;
         @lines = ();
@@ -76,11 +77,12 @@ sub write_csv
   my $number_of_labels = $self->extract_labels();
   print $csv_handler join(",", $self->extract_labels());
   print $csv_handler "\n";
+
   my @array_of_values =  $self->extract_lines($number_of_labels);
 
   foreach(@array_of_values)
   {
-    print $csv_handler join(",", $_);  
+    print $csv_handler join("," , $_);  
 
   }
   close $csv_handler;
