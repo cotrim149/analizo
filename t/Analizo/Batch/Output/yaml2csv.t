@@ -8,7 +8,7 @@ use t::Analizo::Test;
 use Analizo::Batch::Output::yaml2csv;
 
 sub constructor : Tests {
-  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("../../../samples/hello_world/java"); 
+  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("../../../samples/animals/java"); 
   isnt($yaml2csv, undef);
   can_ok($yaml2csv, 'extract_lines');
   can_ok($yaml2csv, 'extract_labels');
@@ -17,24 +17,24 @@ sub constructor : Tests {
 }
 
 sub extract_labels : Tests {
-  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("t/samples/hello_world/java"); 
+  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("t/samples/animals/java"); 
 
   isnt($yaml2csv, undef);
   is($yaml2csv->extract_labels(),18); 
   my @labels = $yaml2csv->extract_labels();
   is($labels[0],"_filename"); 
   is($labels[17],"sc"); 
-   
+    
 }
 
 sub extract_lines : Tests {
-  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("t/samples/hello_world/java"); 
+  my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("t/samples/animals/java"); 
   isnt($yaml2csv, undef);
-  is($yaml2csv->extract_lines(), 36);
+  is($yaml2csv->extract_lines(extract_labels()), 36);
 } 
 
 sub write_csv : Tests {
- my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("samples/hello_world/java"); 
+ my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("samples/animals/java"); 
  isnt($yaml2csv, undef); 
  is($yaml2csv->write_csv(), 1); 
 }
