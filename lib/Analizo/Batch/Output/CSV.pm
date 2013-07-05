@@ -45,10 +45,6 @@ sub write_data {
     # system("yaml2csv " . $details_yaml . " > " . $details_csv);
 
     my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
-    if ($yaml2csv == undef)
-    {
-	die($job->directory);
-    }
     $yaml2csv->write_csv();
   }
 }
