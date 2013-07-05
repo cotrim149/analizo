@@ -30,11 +30,11 @@ sub extract_labels : Tests {
 sub extract_lines : Tests {
   my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("t/samples/animals/java"); 
   isnt($yaml2csv, undef);
-  is($yaml2csv->extract_lines(extract_labels()), 36);
+  is($yaml2csv->extract_lines(extract_labels()), 4);
 } 
 
 sub write_csv : Tests {
- my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("samples/animals/java"); 
+ my $yaml2csv = Analizo::Batch::Output::yaml2csv->new("samples/animals/cpp"); 
  isnt($yaml2csv, undef); 
  is($yaml2csv->write_csv(), 1); 
 }
