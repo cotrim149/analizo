@@ -5,7 +5,7 @@ package Analizo::Batch::Output::yaml2csv;
 sub new 
 {
   my ($class, @yaml_file) = @_;
-  return bless {file_name => @yaml_file}, $class;
+  return bless {job_directory => @yaml_file}, $class;
 }
 
 sub extract_labels
@@ -13,7 +13,7 @@ sub extract_labels
   my ($self) = @_;
   my @labels = ();
 
-  open(my $yaml_handler, "<", $self->{file_name} . "-details.yml")  || return 0;
+  open(my $yaml_handler, "<", $self->{job_directory} . "-details.yml")  || return 0;
 
   while(!eof $yaml_handler)
   { 
@@ -40,7 +40,7 @@ sub extract_lines
   my @array_of_values = ();
   my @files_names = ();
 
-  open(my $yaml_handler, "<", $self->{file_name} . "-details.yml")  || return 0;  
+  open(my $yaml_handler, "<", $self->{job_directory} . "-details.yml")  || return 0;  
   
   while(my $line = readline $yaml_handler)
   {
@@ -72,8 +72,9 @@ sub extract_lines
 sub write_csv 
 {
   my ($self) = @_;
-  my $csv_filename = $self->{file_name} . "-details.csv";
-  open my $csv_handler, '>'.$csv_filename  || die "can not open ".$self->{file_name} . "-details.csv\n".$!;
+  my $csv_filename = $self->{job_directory} . "-details.csv";
+  
+  open my $csv_handler, '>'.$csv_filename  || die "Cannot open ".$self->{job_directory} . "-details.csv\n".$!;
 
   my $number_of_labels = $self->extract_labels();
   print $csv_handler join(",", $self->extract_labels());
@@ -86,8 +87,6 @@ sub write_csv
   }
 
   close $csv_handler;
-
-  return 1;
 }
 
 1;
