@@ -5,7 +5,7 @@ package Analizo::Batch::Output::yaml2csv;
 sub new 
 {
   my ($class, @yaml_file) = @_;
-  return bless {file_name => @yaml_file }, $class;
+  return bless {file_name => @yaml_file}, $class;
 }
 
 sub extract_labels
@@ -23,8 +23,8 @@ sub extract_labels
       push @labels, $1;
       if($1 eq "sc")
       {
-  close $yaml_handler;
-  last;
+        close $yaml_handler;
+        last;
       }
     }
   }
