@@ -16,8 +16,10 @@ sub write_data {
   my @fields = ();
   my @metadata_fields;
 
-  for my $job (@{$self->{jobs}}) {
+	$count = 1;
 
+  for my $job (@{$self->{jobs}}) {
+	
     my ($summary, $details) = $job->metrics->data();
     my $metadata = $job->metadata;
 
@@ -29,19 +31,28 @@ sub write_data {
       print $fh $header;
     }
 
-    my @metadata = map { _encode_value($_->[1]) } @$metadata;
+    #my @metadata = map { _encode_value($_->[1]) } @$metadata;
     my @values = map { _encode_value($summary->{$_}) } @fields;
     my $line = join(',', $job->id, @metadata, @values) . "\n";
     print $fh $line;
 
     #print "Writing details file for ... ",  $job->directory, "\n";
-    my $details_yaml = $job->directory . "-details.yml";
-    open DETAILS, '>' . $details_yaml;
-    print DETAILS join('', map { Dump($_)} @$details);
-    close DETAILS;
+    #my $details_yaml = $job->directory . "-details.yml";
+    #open DETAILS, '>' . $details_yaml;
+    #print DETAILS join('', map { Dump($_)} @$details);
+    #close DETAILS;
 
-    my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
-    $yaml2csv->write_csv();
+    #my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
+    #$yaml2csv->write_csv();
+
+	my $csv_filename = "bla" .$count.  "-details.csv";
+
+	open my $csv_handler, '>'.$csv_filename  || die "Cannot open bla" .$count. "-details.csv\n".$!;
+
+	print $csv_handler join('', map { Dump($_)} @$details);
+  	close $csv_handler;
+
+	$count++;
   }
 }
 
