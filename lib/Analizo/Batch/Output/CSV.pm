@@ -67,14 +67,36 @@ sub _encode_value($) {
 
 sub write_details {
 	my ($self, $id, $details) = @_;
+	#my @test = ();
+	my @labels = ();
+	$contLine = 1;
 
 	my $csv_filename = "bla" .$count.  "-details.csv";
 	#my $csv_filename = $self->{job_directory} . "-details.csv";
 
 	open my $csv_handler, '>'.$csv_filename  || die "Cannot open bla" .$count. "-details.csv\n".$!;
 	#open my $csv_handler, '>'.$csv_filename  || die "Cannot open ".$self->{job_directory} . "-details.csv\n".$!;
+	#$test = join('', map { Dump($_)} @$details);
+	$test = join('', map { Dump($_)} @$details);
+	
+	@lines = split(/\n/, $test);
 
-	print $csv_handler join('', map { Dump($_)} @$details);
+	foreach $line (@lines)
+  	{ 
+    	if($line ne "---\n" and $line =~ m/(\w+):/)
+    	{
+      		push @labels, $1.",";
+  		}
+
+		if($1 eq "sc")
+		{
+			
+			last;
+		}
+	}
+
+
+	print $csv_handler @labels;
   	close $csv_handler;
 
   #my $number_of_labels = $self->extract_labels();	#*HERE*
