@@ -3,7 +3,6 @@ package Analizo::Batch::Output::CSV;
 use base qw( Analizo::Batch::Output );
 use Analizo::Metrics;
 use YAML;
-use Analizo::Batch::Output::yaml2csv;
 
 sub push {
   my ($self, $job) = @_;
@@ -31,23 +30,11 @@ sub write_data {
       print $fh $header;
     }
 
-    #my @metadata = map { _encode_value($_->[1]) } @$metadata;
     my @values = map { _encode_value($summary->{$_}) } @fields;
     my $line = join(',', $job->id, @metadata, @values) . "\n";
     print $fh $line;
 
 	$self->write_details($job->id, $details);
-
-    #print "Writing details file for ... ",  $job->directory, "\n";
-    #my $details_yaml = $job->directory . "-details.yml";
-    #open DETAILS, '>' . $details_yaml;
-    #print DETAILS join('', map { Dump($_)} @$details);
-    #close DETAILS;
-
-    #my $yaml2csv = Analizo::Batch::Output::yaml2csv->new($job->directory);
-    #$yaml2csv->write_csv();
-
-	
 
 	$count++;
   }
@@ -67,16 +54,17 @@ sub _encode_value($) {
 
 sub write_details {
 	my ($self, $id, $details) = @_;
-	#my @test = ();
 	my @labels = ();
-	$contLine = 1;
+	my @values = ();
+	my @array_of_values = ();
+	my @files_name = ();
 
-	my $csv_filename = "bla" .$count.  "-details.csv";
+	my $csv_filename = "dir" .$count.  "-details.csv";
 	#my $csv_filename = $self->{job_directory} . "-details.csv";
 
-	open my $csv_handler, '>'.$csv_filename  || die "Cannot open bla" .$count. "-details.csv\n".$!;
-	#open my $csv_handler, '>'.$csv_filename  || die "Cannot open ".$self->{job_directory} . "-details.csv\n".$!;
-	#$test = join('', map { Dump($_)} @$details);
+	open my $csv_handler, '>'.$csv_filename  || die "Cannot open dir" .$count. "-details.csv\n".$!;
+	#open my $csv_handler, '>'.$directory  || die "Cannot open ".$directory . "-details.csv\n".$!;
+
 	$test = join('', map { Dump($_)} @$details);
 	
 	@lines = split(/\n/, $test);
@@ -85,31 +73,55 @@ sub write_details {
   	{ 
     	if($line ne "---\n" and $line =~ m/(\w+):/)
     	{
-      		push @labels, $1.",";
+			if($1 eq "sc")
+			{
+				push @labels, $1;
+				last;
+			} 
+			else 
+			{
+				push @labels, $1.",";
+			}
+      		
   		}
-
-		if($1 eq "sc")
-		{
-			
-			last;
-		}
 	}
+
+	my $number_of_labels = scalar(@labels);
+
+	foreach $line (@lines)
+  	{
+    	if($line =~ m/( .*)/)
+    	{
+      		if($1 =~ m/(- (.*))/ )
+      		{
+        		push @files_names, $1." ";
+      		}
+      		else
+      		{
+        		push @values, $1;  
+      		}
+      		if($number_of_labels == ((@values)+1))
+      		{ 
+        		push @array_of_values, @files_names;
+        		push @array_of_values, ",";
+        		push @array_of_values, join(",", @values);
+        		push @array_of_values, "\n";
+        		@values = ();
+        		@files_names = ();
+      		}
+    	}
+  	}	
 
 
 	print $csv_handler @labels;
+	print $csv_handler "\n";
+	
+	foreach (@array_of_values)
+	{
+		print $csv_handler $_;
+	}
+
   	close $csv_handler;
-
-  #my $number_of_labels = $self->extract_labels();	#*HERE*
-  #print $csv_handler join(",", $self->extract_labels());	#*HERE*
-  #print $csv_handler "\n";
-
-  #my @array_of_values =  $self->extract_lines($number_of_labels);	#*HERE*
-  #foreach(@array_of_values)
-  #{
-   #  print $csv_handler $_;  
-  #}
-
-  #close $csv_handler;
 }
 
 1;
