@@ -54,10 +54,8 @@ sub _encode_value($) {
 
 sub write_details {
 	my ($self, $id, $details) = @_;
-	my @labels = ();
-	my @values = ();
 	my @array_of_values = ();
-	my @files_name = ();
+	my $files_name;
 
 	my $csv_filename = "dir" .$count.  "-details.csv";
 	#my $csv_filename = $self->{job_directory} . "-details.csv";
@@ -65,62 +63,37 @@ sub write_details {
 	open my $csv_handler, '>'.$csv_filename  || die "Cannot open dir" .$count. "-details.csv\n".$!;
 	#open my $csv_handler, '>'.$directory  || die "Cannot open ".$directory . "-details.csv\n".$!;
 
-	$test = join('', map { Dump($_)} @$details);
-	
-	@lines = split(/\n/, $test);
-
-	foreach $line (@lines)
-  	{ 
-    	if($line ne "---\n" and $line =~ m/(\w+):/)
-    	{
-			if($1 eq "sc")
-			{
-				push @labels, $1;
-				last;
-			} 
-			else 
-			{
-				push @labels, $1.",";
-			}
-      		
-  		}
-	}
-
-	my $number_of_labels = scalar(@labels);
-
-	foreach $line (@lines)
-  	{
-    	if($line =~ m/( .*)/)
-    	{
-      		if($1 =~ m/(- (.*))/ )
-      		{
-        		push @files_names, $1." ";
-      		}
-      		else
-      		{
-        		push @values, $1;  
-      		}
-      		if($number_of_labels == ((@values)+1))
-      		{ 
-        		push @array_of_values, @files_names;
-        		push @array_of_values, ",";
-        		push @array_of_values, join(",", @values);
-        		push @array_of_values, "\n";
-        		@values = ();
-        		@files_names = ();
-      		}
-    	}
-  	}	
+	print $csv_handler "\"filename\",\"module\",\"acc\",\"accm\",\"amloc\",\"anpm\",\"cbo\",\"dit\",\"lcom4\",\"loc\",\"mmloc\",\"noa\",\"noc\",\"nom\",\"npm\",\"npa\",\"rfc\",\"sc\"\n";
 
 
-	print $csv_handler @labels;
-	print $csv_handler "\n";
-	
-	foreach (@array_of_values)
+	foreach (@$details)
 	{
-		print $csv_handler $_;
-	}
+		#foreach $file ($_->{_filename})
+		#{
+		#	$files_name .= $file;
+		#}
 
+		push @array_of_values,  "\"".$_->{_filename}[0]."\/".$_->{_filename}[1]."\",".
+					"\"".$_->{_module}."\",".
+					$_->{acc}.",".
+					$_->{accm}.",".
+					$_->{amloc}.",".
+					$_->{anpm}.",".
+					$_->{cbo}.",".
+					$_->{dit}.",".
+					$_->{lcom4}.",".
+					$_->{loc}.",".
+					$_->{mmloc}.",".
+					$_->{noa}.",".
+					$_->{noc}.",".
+					$_->{nom}.",".
+					$_->{npm}.",".
+					$_->{npa}.",".
+					$_->{rfc}.",".
+					$_->{sc}."\n";
+	}
+	
+	print $csv_handler @array_of_values;
   	close $csv_handler;
 }
 
