@@ -2,7 +2,6 @@ package Analizo::Batch::Output::CSV;
 
 use base qw( Analizo::Batch::Output );
 use Analizo::Metrics;
-use YAML;
 
 sub push {
   my ($self, $job) = @_;
@@ -58,14 +57,27 @@ sub write_details {
 	my $files_name;
 	my $count_files = 0;
 
-	my $csv_filename = "dir" .$count.  "-details.csv";
-	#my $csv_filename = $self->{job_directory} . "-details.csv";
+	my $csv_filename = $id. "-details.csv";
+	open my $csv_handler, '>'.$csv_filename  || die "Cannot open ".$id."-details.csv\n".$!;
 
-	open my $csv_handler, '>'.$csv_filename  || die "Cannot open dir" .$count. "-details.csv\n".$!;
-	#open my $csv_handler, '>'.$directory  || die "Cannot open ".$directory . "-details.csv\n".$!;
-
-	print $csv_handler "\"filename\",\"module\",\"acc\",\"accm\",\"amloc\",\"anpm\",\"cbo\",\"dit\",\"lcom4\",\"loc\",\"mmloc\",\"noa\",\"noc\",\"nom\",\"npm\",\"npa\",\"rfc\",\"sc\"\n";
-
+	print $csv_handler "\"filename\",".
+			   "\"module\",".
+			   "\"acc\",".
+			   "\"accm\",".
+			   "\"amloc\",".
+			   "\"anpm\",".
+			   "\"cbo\",".
+			   "\"dit\",".
+			   "\"lcom4\",".
+			   "\"loc\",".
+			   "\"mmloc\",".
+			   "\"noa\",".
+			   "\"noc\",".
+			   "\"nom\",".
+			   "\"npm\",".
+			   "\"npa\",".
+			   "\"rfc\",".
+			   "\"sc\"\n";
 
 	foreach (@$details)
 	{
