@@ -56,6 +56,7 @@ sub write_details {
 	my ($self, $id, $details) = @_;
 	my @array_of_values = ();
 	my $files_name;
+	my $count_files = 0;
 
 	my $csv_filename = "dir" .$count.  "-details.csv";
 	#my $csv_filename = $self->{job_directory} . "-details.csv";
@@ -68,12 +69,16 @@ sub write_details {
 
 	foreach (@$details)
 	{
-		#foreach $file ($_->{_filename})
-		#{
-		#	$files_name .= $file;
-		#}
+		if($_->{_filename}[1] eq "")
+		{
+			$file_name = $_->{_filename}[0];
+		}
+		else
+		{
+			$file_name = $_->{_filename}[0]."\/".$_->{_filename}[1];
+		}
 
-		push @array_of_values,  "\"".$_->{_filename}[0]."\/".$_->{_filename}[1]."\",".
+		push @array_of_values,  "\"".$file_name."\",".
 					"\"".$_->{_module}."\",".
 					$_->{acc}.",".
 					$_->{accm}.",".
