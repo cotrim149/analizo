@@ -62,7 +62,7 @@ sub job_metadata : Tests {
   my @lines = readfile($TMPFILE);
 
   ok($lines[0] =~ /^id,data1,data2/, 'must list metadata fields');
-  #ok($lines[1] =~ /^99,88,77/, 'must include metadata values');
+  ok($lines[1] =~ /^99,88,77/, 'must include metadata values');
 }
 
 sub must_write_list_data_as_string : Tests {
@@ -79,7 +79,7 @@ sub must_write_list_data_as_string : Tests {
   $output->flush();
 
   my @lines = readfile $TMPFILE;
-  #like($lines[1], qr/,"onething;otherthing",/);
+  like($lines[1], qr/,"onething;otherthing",/);
 
 }
 

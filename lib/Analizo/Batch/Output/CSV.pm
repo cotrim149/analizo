@@ -14,8 +14,6 @@ sub write_data {
   my @fields = ();
   my @metadata_fields;
 
-	$count = 1;
-
   for my $job (@{$self->{jobs}}) {
 	
     my ($summary, $details) = $job->metrics->data();
@@ -29,13 +27,12 @@ sub write_data {
       print $fh $header;
     }
 
+    my @metadata = map{ _encode_value($_->[1])} @$metadata;
     my @values = map { _encode_value($summary->{$_}) } @fields;
     my $line = join(',', $job->id, @metadata, @values) . "\n";
     print $fh $line;
 
-	$self->write_details($job->id, $details);
-
-	$count++;
+    $self->write_details($job->id, $details);
   }
 }
 
@@ -55,7 +52,6 @@ sub write_details {
 	my ($self, $id, $details) = @_;
 	my @array_of_values = ();
 	my $files_name;
-	my $count_files = 0;
 
 	my $csv_filename = $id. "-details.csv";
 	open my $csv_handler, '>'.$csv_filename  || die "Cannot open ".$id."-details.csv\n".$!;
