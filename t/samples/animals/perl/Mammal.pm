@@ -4,12 +4,12 @@ use strict;
 use warnings;
 
 sub new {
-	my $class = shift;
+  my $class = shift;
 	
-	my $self = {name=>shift}; 
+  my $self = {name=>shift}; 
 		
-	bless ($self,$class);
-	return $self;
+  bless ($self,$class);
+  return $self;
 }
 
 1;

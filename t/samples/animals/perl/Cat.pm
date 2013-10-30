@@ -4,13 +4,12 @@ use base qw(Mammal);
 use strict;
 use warnings;
 
-
 sub name {
-	my $self = shift;
+  my $self = shift;
 	
-	$self->{name} = shift if (@_);
+  $self->{name} = shift if (@_);
 	
-	return $self->{name};
+  return $self->{name};
 }
 
 1;
