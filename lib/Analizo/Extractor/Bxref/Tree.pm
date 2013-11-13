@@ -60,6 +60,7 @@ sub building_tree {
 	my $element_line;
 	my $element_type;
 	my $element_package;
+  my $full_name;
 
 	my ($self, $lines, @files) = @_;
 
@@ -69,26 +70,36 @@ sub building_tree {
 
 	#								$1			$2			$3		 $4			$5						$6				$7			$8
 	#								file    module  method line   package -----type---    name    ---used----  
-	if ($lines =~ /^(\S+)\s+(\S+)::(\S+)\s+(\d+)\s(\S+)\s+([@*&\$%?>-]+)\s(\S+)\s+([a-zA-Z]+)$/) {
+	if ($lines =~ /^(\S+)\s+(\S+)\s+(\d+)\s(\S+)\s+([@*&\$%?>-]+)\s(\S+)\s+([a-zA-Z]+)$/) {
 		$file = $1;
-		$module = $2;
-		$element_method = $3;
-		$element_line = $4;
-		$element_package = $5;
-		$element_type = $6;
-		$element_name = $7;
-		$element_usage = $8;
+		#$module = $2;
+		#$element_method = $2;
+		$full_name = $2;
+    $element_line = $3;
+		$element_package = $4;
+		$element_type = $5;
+		$element_name = $6;
+		$element_usage = $7;
+
+    if ($full_name =~ /(\S+)::(\S+)/){
+      $module = $1;
+      $element_method = $2;
+    } else{
+        $module = $full_name;
+        $element_method = "(global)";
+      }
 
 		#FIX FILE NAMES
-
-		$tree->{$file}->{$module}->{"global_variables"} = 0 if (!defined ($tree->{$file}->{$module}) && grep {$_ eq $file} @files);
+    if ($module =~ /\(/){
+		  $tree->{$file}->{$module}->{"global_variables"} = 0 if (!defined ($tree->{$file}->{$module}) && grep {$_ eq $file} @files);
+    }
 
 		if (grep {$_ eq $file} @files) {
 
 			if ($element_usage =~ /^intro$/) {
 				push @{$tree->{$file}->{$module}->{$element_method}->{"local_variable_names"}}, $element_name;
 
-				if ($element_method =~ /\(/){ 
+				if ($module =~ /\(/){ 
 					$tree->{$file}->{$module}->{"global_variables"} ++;
 				}
 			} else {
