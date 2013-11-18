@@ -49,5 +49,28 @@ sub extracting_module_name : Tests {
 	is($module_name, "animal", "must return name of the module");
 }
 
+sub qualifing_name : Tests {
+	my $xref = new Analizo::Extractor::Bxref::Xref();
+	my $name;
+
+	$name = $xref->_qualified_name("animal.pm", "new");
+	is($name, "animal::new", "must return name");
+}
+
+#sub adding_member_in_model : Tests {
+#	my $extractor = Analizo::Extractor->load("Bxref::Xref");
+
+#	use Analizo::Extractor::Bxref::Tree;
+#	my $tree = new Analizo::Extractor::Bxref::Tree();
+
+#	my @files = {'animal.pm','cat.pm', 'dog.pm'};
+
+#	$tree->building_tree('/sample/animals/perl/animal.pm  Animal::new  12 (lexical)  $ self  used', @files);
+#	$extractor->feed($tree);
+
+#	ok (grep { $_ eq 'Animal::new'} @{$extractor->model->{modules}->{'animal.pm'}->{functions}});
+#	is ($extractor->current_member, 'Animal::new', 'must set current member');
+#}
+
 __PACKAGE__->runtests;
 

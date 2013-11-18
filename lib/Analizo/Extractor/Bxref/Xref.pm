@@ -22,15 +22,24 @@ sub _file_to_module {
 	return $module_name;
 }
 
-#sub _function_declarations {
-#	my ($self, $function) = @_;
+sub _qualified_name {
+	my ($self, $file_name, $symbol) = @_;
 
-#	if (!($function =~ /global_variables/)) {
-#		my $function = $self->_qualified_name($self->current_module, $_);
-#		$self->model->declare_function($self->current_module, $function);
-#		$self->{current_member} = $function;
-#	}
-#}
+	$file_name ||= 'unknown';
+	$file_name =~ s/\.\w+$//;
+
+	return $file_name . '::' . $symbol;
+}
+
+sub _function_declarations {
+	my ($self, $function) = @_;
+
+	if (!($function =~ /global_variables/)) {
+		my $function = $self->_qualified_name($self->current_module, $_);
+		$self->model->declare_function($self->current_module, $function);
+		$self->{current_member} = $function;
+	}
+}
 
 #sub _variable_declarations {
 #	my ($self, $methods) = @_;
