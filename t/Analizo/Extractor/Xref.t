@@ -38,5 +38,16 @@ sub current_directory : Tests {
 	is($file_name, "sample/animal.pm", "must return name of the file");
 }
 
+sub extracting_module_name : Tests {
+	my $xref = new Analizo::Extractor::Bxref::Xref();
+	my $module_name;
+
+	$module_name = $xref->_file_to_module("analizo/t/sample/animal.pm");
+	is($module_name, "animal", "must return name of the module");
+
+	$module_name = $xref->_file_to_module("analizo/t/sample/animal.pl");
+	is($module_name, "animal", "must return name of the module");
+}
+
 __PACKAGE__->runtests;
 
