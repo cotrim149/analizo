@@ -1,13 +1,11 @@
-#! /usr/bin/perl
-
 package Analizo::Extractor::Bxref::Xref;
 
 use strict;
 use warnings;
 
 use base qw(Analizo::Extractor);
-use Analizo::Extractor::Bxref::Tree;
 use Data::Dumper;
+use Cwd;
 
 sub new {
 	my $package = shift;
@@ -24,6 +22,15 @@ sub _file_to_module {
 	return $module_name;
 }
 
+sub _qualified_name {
+	my ($self, $file_name, $symbol) = @_;
+
+	$file_name ||= 'unknown';
+	$file_name =~ s/\.\w+$//;
+
+	return $file_name . '::' . $symbol;
+}
+
 sub _function_declarations {
 	my ($self, $function) = @_;
 
@@ -34,20 +41,34 @@ sub _function_declarations {
 	}
 }
 
-sub _variable_declarations {
-	my ($self, $methods) = @_;
+#sub _variable_declarations {
+#	my ($self, $methods) = @_;
 
-	foreach (keys %$methods) {
-		my $local_variables = $methods->{$_};
+#	foreach (keys %$methods) {
+#		my $local_variables = $methods->{$_};
 
-		if (/local_variable_names/) {
-			foreach (@$local_variables) {
-				my $variable = $self->_qualified_name($self->current_module, $_);
-				$self->model->declare_variable($self->current_module, $variable);
-				$self->{current_member};
-			}
-		}
-	}
+#		if (/local_variable_names/) {
+#			foreach (@$local_variables) {
+#				my $variable = $self->_qualified_name($self->current_module, $_);
+#				$self->model->declare_variable($self->current_module, $variable);
+#				$self->{current_member};
+#			}
+#		}
+#	}
+#}
+
+sub _add_file {
+	my ($self, $file) = @_;
+	push (@{$self->{files}}, $file);
+}
+
+sub _strip_current_directory {
+	my ($self, $file) = @_;
+	my $pwd = getcwd();
+
+	$file =~ s/^$pwd\///;
+
+	return $file;
 }
 
 sub feed {
@@ -76,14 +97,14 @@ sub actually_process {
 	my ($self, @files) = @_;
 	my $tree;
 
-#	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
-	my $xref_tree;
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree();
+
 	foreach my $input_file (@files) {
 		open ANALISES, "perl -MO=Xref,-r $input_file 2> /dev/null | " or die $!;
 
 		while (<ANALISES>) { 
 			$tree = $xref_tree->building_tree($_, @files);
-    }
+		}
 
 		close ANALISES;
 	}

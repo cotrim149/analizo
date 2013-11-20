@@ -15,7 +15,7 @@ sub write_data {
   my @metadata_fields;
 
   for my $job (@{$self->{jobs}}) {
-
+	
     my ($summary, $details) = $job->metrics->data();
     my $metadata = $job->metadata;
 
