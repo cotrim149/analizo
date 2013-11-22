@@ -1,4 +1,4 @@
-package t::Analizo::Extractor::Xref;
+package t::Analizo::Extractor::Bxref::Xref;
 
 use base qw(Test::Class);
 use Test::More;
