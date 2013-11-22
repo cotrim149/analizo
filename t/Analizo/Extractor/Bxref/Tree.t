@@ -6,19 +6,18 @@ use strict;
 use warnings;
 use Analizo::Extractor::Bxref::Tree;
 
+my $tree;
+
+sub before : Test(setup) {
+	$tree = new Analizo::Extractor::Bxref::Tree;
+}
 
 sub contructor : Tests {
-	my $tree = new Analizo::Extractor::Bxref::Tree;
-
 	use_ok('Analizo::Extractor::Bxref::Tree');
 	isa_ok($tree,'Analizo::Extractor::Bxref::Tree');
-	
 }
 
 sub number_of_global_variables : Tests {
-	
-	my $tree = new Analizo::Extractor::Bxref::Tree;
-
 	my @files = ('Person.pm');
 	my $num_global_variables;
 	
@@ -30,9 +29,6 @@ sub number_of_global_variables : Tests {
 }
 
 sub file_name : Tests {
-	
-	my $tree = new Analizo::Extractor::Bxref::Tree;
-
 	my @files = ('Person.pm');
 	my $file;
 	
