@@ -3,22 +3,21 @@ package Analizo::Extractor::Bxref::Tree;
 use strict;
 use warnings;
 
-my $tree;
 
 sub new {
 	my $package = shift;
 	return bless {@_}, $package;
 }
 
-sub add_method_to_tree {
+sub add_method_to_self {
 	my ($self, $file, $module, $element_method, $element_usage, $element_name, $element_type, $element_package) = @_;
 
 	if ($element_usage =~ /^subused$/ && !($element_type =~ /\?/)) {
 		if (!($element_package =~ /main/ || $element_package =~ /(lexical)/)){
-			$tree->{$file}->{$module}->{$element_method}->{"called_methods"}->{$element_name} = $element_package;
+			$self->{$file}->{$module}->{$element_method}->{"called_methods"}->{$element_name} = $element_package;
 		}	
 		else {
-			$tree->{$file}->{$module}->{$element_method}->{"called_methods"}->{$element_name} = $self->father_seeker($element_name);
+			$self->{$file}->{$module}->{$element_method}->{"called_methods"}->{$element_name} = $self->father_seeker($element_name);
 		}
 	}
 }
@@ -29,8 +28,8 @@ sub father_seeker {
 	my $modules;
 	my $methods;
 
-	foreach (keys %$tree) {
-		$files = $tree->{@_};
+	foreach (keys %$self) {
+		$files = $self->{@_};
 
 		foreach (keys %$files) {
 			$modules = $files->{$_};
@@ -91,38 +90,38 @@ sub building_tree {
 
 		#FIX FILE NAMES
     if ($module =~ /\(/){
-		  $tree->{$file}->{$module}->{"global_variables"} = 0 if (!defined ($tree->{$file}->{$module}) && grep {$_ eq $file} @files);
+		  $self->{$file}->{$module}->{"global_variables"} = 0 if (!defined ($self->{$file}->{$module}) && grep {$_ eq $file} @files);
     }
 
 		if (grep {$_ eq $file} @files) {
 
 			if ($element_usage =~ /^intro$/) {
-				push @{$tree->{$file}->{$module}->{$element_method}->{"local_variable_names"}}, $element_name;
+				push @{$self->{$file}->{$module}->{$element_method}->{"local_variable_names"}}, $element_name;
 
 				if ($module =~ /\(/){ 
-					$tree->{$file}->{$module}->{"global_variables"} ++;
+					$self->{$file}->{$module}->{"global_variables"} ++;
 				}
 			} else {
 				if ($element_line != 0 && $element_usage =~ /^used$/) {
-					if (grep{$_ eq $element_name} @{$tree->{$file}->{$module}->{$element_method}->{"local_variable_names"}}){
-						$tree->{$file}->{$module}->{$element_method}->{"used_variable_names"}->{$element_name} = 0;
+					if (grep{$_ eq $element_name} @{$self->{$file}->{$module}->{$element_method}->{"local_variable_names"}}){
+						$self->{$file}->{$module}->{$element_method}->{"used_variable_names"}->{$element_name} = 0;
 					} else {
-						$tree->{$file}->{$module}->{$element_method}->{"used_variable_names"}->{$element_name} = 1;
+						$self->{$file}->{$module}->{$element_method}->{"used_variable_names"}->{$element_name} = 1;
 					  }
 				}
 
 				if ($element_usage =~ /^subdef$/ && $element_line != 0) {
 					my @another_method_full_name = split "::", $element_name;
 					$element_name = $another_method_full_name[$#another_method_full_name];
-					$tree->{$file}->{$module}->{$element_name}->{"method_parent"} = $file;
+					$self->{$file}->{$module}->{$element_name}->{"method_parent"} = $file;
 				}
 			}
 			
-			$self->add_method_to_tree ($file, $module, $element_method, $element_usage, $element_name, $element_type, $element_package);
+			$self->add_method_to_self ($file, $module, $element_method, $element_usage, $element_name, $element_type, $element_package);
 		}
 	}
 	
-	return $tree;
+	return $self;
 }
 
 1;
