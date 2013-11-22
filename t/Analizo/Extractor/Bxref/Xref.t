@@ -14,6 +14,9 @@ use Analizo::Extractor::Bxref::Tree;
 
 eval ('$Analizo::Extractor::QUIET = 1;');
 
+my $extractor;
+my $xref_tree;
+
 sub new_xref_extractor () {
 	my $model = new Analizo::Model;
 	return Analizo::Extractor::Bxref::Xref->new( model => $model);
@@ -21,6 +24,11 @@ sub new_xref_extractor () {
 
 sub new_tree_xref_extractor () {
 	return new Analizo::Extractor::Bxref::Tree();
+}
+
+sub before : Test(setup) {
+	$extractor = new_xref_extractor();
+	$xref_tree = new_tree_xref_extractor();
 }
 
 sub constructor : Tests {
@@ -45,36 +53,59 @@ sub current_directory : Tests {
 	is($file_name, "sample/animal.pm", "must return name of the file");
 }
 
+#sub adding_current_file_in_the_model : Tests {
+#	my $extractor = new_xref_extractor();
+
+#}
+
 sub extracting_module_name : Tests {
 	my $extractor = new_xref_extractor();
 	my $module_name;
 
 	$module_name = $extractor->_file_to_module("analizo/t/sample/animal.pm");
 	is($module_name, "animal", "must return name of the module");
-
 	$module_name = $extractor->_file_to_module("analizo/t/sample/animal.pl");
 	is($module_name, "animal", "must return name of the module");
-}
+} 
 
 sub qualifing_name : Tests {
 	my $extractor = new_xref_extractor();
 	my $name;
 
-	$name = $extractor->_qualified_name("animal.pm", "new");
+	$name = $extractor->_qualified_name("animal", "new");
 	is($name, "animal::new", "must return name");
 }
 
-sub adding_member_in_model : Tests {
-	my $extractor = new_xref_extractor();
-	my $tree = new_tree_xref_extractor();
+sub detect_file_in_the_model : Tests {
+	my $tree;
 
-	my @files = {'animal.pm','cat.pm', 'dog.pm'};
-
-	$tree->building_tree('/sample/animals/perl/animal.pm  Animal::new  12 (lexical)  $ self  used', @files);
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
 	$extractor->feed($tree);
 
-	#ok (grep { $_ eq 'Animal::new'} @{$extractor->model->{modules}->{'animal.pm'}->{functions}});
-	#is ($extractor->current_member, 'Animal::new', $extractor->model->{modules}->{'animal.pm'}->{functions});
+	is($extractor->model->{files}->{'Employee'}[0], "Person.pm", "must set the current file in the files array");
+	is($extractor->{files}[0], "Person.pm", 'must set the current file in the model');
+	is($extractor->current_file, 'Person.pm', 'must set the current file');
+}
+
+sub detect_module_in_the_model : Tests {
+	my $tree;
+
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
+	$extractor->feed($tree);	
+
+	is($extractor->model->{module_names}[0], "Employee", "must set the current module in the files array");
+	is($extractor->current_module, "Employee", "must set the current module in the extractor");
+}
+
+
+sub detect_function_in_the_model : Tests {
+	my $tree;
+
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
+	$extractor->feed($tree);
+
+    is($extractor->model->{modules}->{'Employee'}->{functions}[0], "Employee::new", 'must set the current function in the model');
+    is($extractor->current_member, 'Employee::new', 'must set the current function');
 }
 
 __PACKAGE__->runtests;

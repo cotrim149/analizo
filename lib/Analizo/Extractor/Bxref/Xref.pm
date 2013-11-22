@@ -8,8 +8,8 @@ use Data::Dumper;
 use Cwd;
 
 sub new {
-	my $package = shift;
-	return bless { files => [], @_}, $package;
+ 	my ($package) = shift;
+ 	return bless { files => [], @_ }, $package;
 }
 
 sub _file_to_module {
@@ -91,7 +91,7 @@ sub feed {
 			#}
 
 			foreach (keys %$modules) {
-				my $function = _qualified_name($self->current_module, $_);
+				my $function = $self->_qualified_name($self->current_module, $_);
 				$self->model->declare_function($self->current_module, $function);
 				$self->{current_member} = $function;
 
