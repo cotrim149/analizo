@@ -14,21 +14,9 @@ use Analizo::Extractor::Bxref::Tree;
 
 eval ('$Analizo::Extractor::QUIET = 1;');
 
-my $extractor;
-my $xref_tree;
-
 sub new_xref_extractor () {
 	my $model = new Analizo::Model;
 	return Analizo::Extractor::Bxref::Xref->new( model => $model);
-}
-
-sub new_tree_xref_extractor () {
-	return new Analizo::Extractor::Bxref::Tree();
-}
-
-sub before : Test(setup) {
-	$extractor = new_xref_extractor();
-	$xref_tree = new_tree_xref_extractor();
 }
 
 sub constructor : Tests {
@@ -53,11 +41,6 @@ sub current_directory : Tests {
 	is($file_name, "sample/animal.pm", "must return name of the file");
 }
 
-#sub adding_current_file_in_the_model : Tests {
-#	my $extractor = new_xref_extractor();
-
-#}
-
 sub extracting_module_name : Tests {
 	my $extractor = new_xref_extractor();
 	my $module_name;
@@ -77,6 +60,8 @@ sub qualifing_name : Tests {
 }
 
 sub detect_file_in_the_model : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
@@ -88,6 +73,8 @@ sub detect_file_in_the_model : Tests {
 }
 
 sub detect_module_in_the_model : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
@@ -99,6 +86,8 @@ sub detect_module_in_the_model : Tests {
 
 
 sub detect_function_in_the_model : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
@@ -109,6 +98,8 @@ sub detect_function_in_the_model : Tests {
 }
 
 sub detect_variable_in_the_model : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
@@ -117,20 +108,34 @@ sub detect_variable_in_the_model : Tests {
   is($extractor->model->{modules}->{'Employee'}->{variables}[0], "Employee::self", 'must set the current variables in the model');
 }
 
-
-sub verify_module_by_file {
+sub verify_module_by_file : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 	my $other_tree;
 
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
-	$other_tree = $xref_tree->building_tree('Person.pm        Person::new    52 (lexical)       $ self             intro', 'Person.pm');
+	$tree = $xref_tree->building_tree('Person.pm        Person::new    52 (lexical)       $ self             intro', 'Person.pm');
 
 	$extractor->feed($tree);
-	$extractor->feed($other_tree);
 
-	my @modules = $extractor->model->module_by_file;
-  is($modules[0], "Employee", 'must get module name in the model');
-  is($modules[1], "Person", 'must get module name in the model');
+	my @modules = @{$extractor->model->{module_by_file}->{'Person.pm'}};
+
+  is(grep (/Employee/, @modules), 1, 'must get module name in the model');
+	is(grep (/Person/, @modules), 1, 'must get module name in the model');
+}
+
+sub verify_function_call : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
+	my $tree;
+
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)      %%$ self           intro', 'Person.pm');
+	$tree = $xref_tree->building_tree('Person.pm        Person::speak    52 (lexical)      %%$ self            subused', 'Person.pm');
+
+	$extractor->feed($tree);	
+
+	#is($extractor->model->{calls}->{'Person::speak'}->{'Employee::new'}, 'direct', 'must verify function call'.Dumper($tree));
 }
 
 __PACKAGE__->runtests;
