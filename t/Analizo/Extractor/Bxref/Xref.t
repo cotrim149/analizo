@@ -104,9 +104,19 @@ sub detect_function_in_the_model : Tests {
 	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
 	$extractor->feed($tree);
 
-    is($extractor->model->{modules}->{'Employee'}->{functions}[0], "Employee::new", 'must set the current function in the model');
-    is($extractor->current_member, 'Employee::new', 'must set the current function');
+  is($extractor->model->{modules}->{'Employee'}->{functions}[0], "Employee::new", 'must set the current function in the model');
+  is($extractor->current_member, 'Employee::new', 'must set the current function');
 }
+
+sub detect_variable_in_the_model : Tests {
+	my $tree;
+
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
+	$extractor->feed($tree);
+
+  is($extractor->model->{modules}->{'Employee'}->{variables}[0], "Employee::self", 'must set the current variables in the model');
+}
+
 
 __PACKAGE__->runtests;
 

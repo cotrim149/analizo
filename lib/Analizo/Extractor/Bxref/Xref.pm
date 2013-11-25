@@ -41,21 +41,20 @@ sub _function_declarations {
 	}
 }
 
-#sub _variable_declarations {
-#	my ($self, $methods) = @_;
+sub _variable_declarations {
+	my ($self, $methods) = @_;
 
-#	foreach (keys %$methods) {
-#		my $local_variables = $methods->{$_};
+	foreach (keys %$methods) {
+		my $local_variables = $methods->{$_};
 
-#		if (/local_variable_names/) {
-#			foreach (@$local_variables) {
-#				my $variable = $self->_qualified_name($self->current_module, $_);
-#				$self->model->declare_variable($self->current_module, $variable);
-#				$self->{current_member};
-#			}
-#		}
-#	}
-#}
+		if (/local_variable_names/) {
+			foreach (@$local_variables) {
+				my $variable = $self->_qualified_name($self->current_module, $_);
+				$self->model->declare_variable($self->current_module, $variable);
+			}
+		}
+	}
+}
 
 sub _add_file {
 	my ($self, $file) = @_;
@@ -83,22 +82,21 @@ sub feed {
 		my $files = $tree->{$_};
 
 		foreach (keys %$files) {
-			#if ($_ =~ /\(/) {
-			#	next;
-			#} else {
-				$self->current_module($_);
-				my $modules = $files->{$_};
-			#}
+			$self->current_module($_);
+			my $modules = $files->{$_};
 
 			foreach (keys %$modules) {
 				my $function = $self->_qualified_name($self->current_module, $_);
 				$self->model->declare_function($self->current_module, $function);
 				$self->{current_member} = $function;
 
-				#$self->_function_declaration($_);
+				#			$self->_function_declaration($_);
 
-				#my $methods = $modules->{$_} if (/new/);
-				#$self->_variable_declarations($methods);
+				my $methods = $modules->{$_} ;
+
+				foreach (keys %$methods){
+							$self->_variable_declarations($methods);
+				}
 			}
 		}
 	}
