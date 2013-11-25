@@ -8,8 +8,8 @@ use Data::Dumper;
 use Cwd;
 
 sub new {
-	my $package = shift;
-	return bless { files => [], @_}, $package;
+ 	my ($package) = shift;
+ 	return bless { files => [], @_ }, $package;
 }
 
 sub _file_to_module {
@@ -75,20 +75,31 @@ sub feed {
 	my ($self, $tree) = @_;
 
 	foreach (keys %$tree) {
+
 		my $file = $self->_strip_current_directory($_);
 		$self->current_file($file);
 		$self->_add_file($file);
 
-		my $module_name = $self->_file_to_module($file);
-		$self->current_module($module_name);
-
 		my $files = $tree->{$_};
 
 		foreach (keys %$files) {
-			$self->_function_declaration($_);
+			#if ($_ =~ /\(/) {
+			#	next;
+			#} else {
+				$self->current_module($_);
+				my $modules = $files->{$_};
+			#}
 
-			my $methods = $files->{$_} if (/new/);
-			$self->_variable_declarations($methods);
+			foreach (keys %$modules) {
+				my $function = $self->_qualified_name($self->current_module, $_);
+				$self->model->declare_function($self->current_module, $function);
+				$self->{current_member} = $function;
+
+				#$self->_function_declaration($_);
+
+				#my $methods = $modules->{$_} if (/new/);
+				#$self->_variable_declarations($methods);
+			}
 		}
 	}
 }
