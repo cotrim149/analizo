@@ -118,5 +118,20 @@ sub detect_variable_in_the_model : Tests {
 }
 
 
+sub verify_module_by_file {
+	my $tree;
+	my $other_tree;
+
+	$tree = $xref_tree->building_tree('Person.pm        Employee::new    52 (lexical)       $ self             intro', 'Person.pm');
+	$other_tree = $xref_tree->building_tree('Person.pm        Person::new    52 (lexical)       $ self             intro', 'Person.pm');
+
+	$extractor->feed($tree);
+	$extractor->feed($other_tree);
+
+	my @modules = $extractor->model->module_by_file;
+  is($modules[0], "Employee", 'must get module name in the model');
+  is($modules[1], "Person", 'must get module name in the model');
+}
+
 __PACKAGE__->runtests;
 
