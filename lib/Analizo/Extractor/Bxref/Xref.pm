@@ -69,6 +69,20 @@ sub _function_calls {
 	}
 }
 
+sub _variable_calls{
+	my ($self,$method_name,$methods) = @_;
+	foreach (keys %$methods){
+		my $called_variable = $methods->{$_};
+		if(/used_variable_names/){
+			foreach(keys %$called_variable){
+				$self->model->add_variable_use($method_name,$_);
+			}
+		}
+	}
+}
+
+
+
 sub _add_file {
 	my ($self, $file) = @_;
 	push (@{$self->{files}}, $file);
@@ -82,6 +96,7 @@ sub _strip_current_directory {
 
 	return $file;
 }
+
 
 sub feed {
 	my ($self, $tree) = @_;
@@ -107,6 +122,7 @@ sub feed {
 					
 				$self->_variable_declarations($methods);
 				$self->_function_calls($_, $methods);
+				$self->_variable_calls($_,$methods);
 			}
 		}
 	}

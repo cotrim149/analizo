@@ -41,14 +41,14 @@ sub current_directory : Tests {
 	is($file_name, "sample/animal.pm", "must return name of the file");
 }
 
-sub extracting_module_name : Tests {
+sub extracting_file_name : Tests {
 	my $extractor = new_xref_extractor();
-	my $module_name;
+	my $file_name;
 
-	$module_name = $extractor->_file_to_module("analizo/t/sample/animal.pm");
-	is($module_name, "animal", "must return name of the module");
-	$module_name = $extractor->_file_to_module("analizo/t/sample/animal.pl");
-	is($module_name, "animal", "must return name of the module");
+	$file_name = $extractor->_file_to_module("analizo/t/sample/animal.pm");
+	is($file_name, "animal", "must return name of the module");
+	$file_name = $extractor->_file_to_module("analizo/t/sample/animal.pl");
+	is($file_name, "animal", "must return name of the module");
 } 
 
 sub qualifing_name : Tests {
@@ -120,8 +120,8 @@ sub verify_module_by_file : Tests {
 	
 	my @modules = @{$extractor->model->{module_by_file}->{'Person.pm'}};
 
-  	is(grep (/Employee/, @modules), 1, 'must get module name in the model');
-	is(grep (/Person/, @modules), 1, 'must get module name in the model');
+  	is(grep (/^Employee$/, @modules), 1, 'must get module name in the model');
+	is(grep (/^Person$/, @modules), 1, 'must get module name in the model');
 }
 
 sub verify_function_call : Tests {
@@ -129,12 +129,24 @@ sub verify_function_call : Tests {
 	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
 	my $tree;
 
-	$tree = $xref_tree->building_tree('Person.pm        Employee::print_employee    82 Employee      & print_person           subused', 'Person.pm');
+	$tree = $xref_tree->building_tree('Person.pm        Employee::print_employee    82 Employee      & print_person   subused', 'Person.pm');
 
 	$extractor->feed($tree);	
 
 	is($extractor->model->{calls}->{'print_employee'}->{'print_person'}, 'direct', 'must verify function call');
 }
+
+sub verify_variable_call : Tests {
+	my $extractor = new_xref_extractor();
+	my $xref_tree = new Analizo::Extractor::Bxref::Tree;
+
+	$xref_tree = $xref_tree->building_tree('Person.pm        Employee::setFirstName    82 (lexical)      $ firstName   used', 'Person.pm');
+
+	$extractor->feed($xref_tree);	
+
+  is($extractor->model->{calls}->{'setFirstName'}->{'firstName'}, 'variable');
+}
+
 
 __PACKAGE__->runtests;
 
